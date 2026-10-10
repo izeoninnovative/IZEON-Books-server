@@ -1,13 +1,172 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
-}
+// use prisma-8
 
 enum Role {
-  admin,
-  hr
+  ADMIN
+  HR
+}
+
+enum PaymentPlan {
+  LUMPSUM
+  EMI
+}
+
+enum InvoiceType {
+  GST
+  NON_GST
+}
+
+enum EmiStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  NETBANKING
+  CHEQUE
+}
+
+enum ExpenseCategory {
+  RENT
+  UTILITIES
+  MARKETING
+  EQUIPMENT
+  MAINTENANCE
+  SALARY
+  OTHER
+}
+
+enum StudentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String
+  email     String   @unique
+  password  String
+  role      Role     @default(HR)
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  expenses  Expense[]
+  salaries  SalaryPayment[]
+}
+
+model Course {
+  id            Int      @id @default(autoincrement())
+  title         String
+  code          String   @unique
+  description   String?
+  durationWeeks Int      @default(12)
+  baseFee       Float
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+  students      Student[]
+}
+
+model Student {
+  id        Int           @id @default(autoincrement())
+  name      String
+  email     String        @unique
+  phone     String
+  dob       String
+  address   String?
+  courseId  Int
+  course    Course        @relation(fields: [courseId], references: [id])
+  status    StudentStatus @default(ACTIVE)
+  joinDate  TimestamptzString @default(now())
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  feePlans  FeePlan[]
+  invoices  Invoice[]
+}
+
+model FeePlan {
+  id                Int          @id @default(autoincrement())
+  studentId         Int
+  student           Student      @relation(fields: [studentId], references: [id])
+  planType          PaymentPlan  @default(LUMPSUM)
+  invoiceType       InvoiceType  @default(GST)
+  baseAmount        Float
+  discountAmount    Float        @default(0)
+  taxableAmount     Float
+  gstRate           Float        @default(18)
+  gstAmount         Float        @default(0)
+  totalAmount       Float
+  paidAmount        Float        @default(0)
+  balanceAmount     Float
+  totalInstallments Int          @default(1)
+  createdAt         TimestamptzString @default(now())
+  updatedAt         temporal.updatedAtString()
+  emiSchedules      EmiSchedule[]
+  invoices          Invoice[]
+}
+
+model EmiSchedule {
+  id            Int       @id @default(autoincrement())
+  feePlanId     Int
+  feePlan       FeePlan   @relation(fields: [feePlanId], references: [id])
+  installmentNo Int
+  amount        Float
+  dueDate       TimestamptzString
+  paidDate      TimestamptzString?
+  status        EmiStatus @default(PENDING)
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+  invoices      Invoice[]
+}
+
+model Invoice {
+  id             Int           @id @default(autoincrement())
+  invoiceNo      String        @unique
+  studentId      Int
+  student        Student       @relation(fields: [studentId], references: [id])
+  feePlanId      Int
+  feePlan        FeePlan       @relation(fields: [feePlanId], references: [id])
+  emiScheduleId  Int?
+  emiSchedule    EmiSchedule?  @relation(fields: [emiScheduleId], references: [id])
+  invoiceType    InvoiceType
+  paymentMethod  PaymentMethod @default(UPI)
+  transactionRef String?
+  amountPaid     Float
+  taxableAmount  Float
+  cgstAmount     Float         @default(0)
+  sgstAmount     Float         @default(0)
+  totalAmount    Float
+  issuedAt       TimestamptzString @default(now())
+  createdAt      TimestamptzString @default(now())
+}
+
+model Expense {
+  id          Int             @id @default(autoincrement())
+  title       String
+  category    ExpenseCategory
+  amount      Float
+  expenseDate TimestamptzString @default(now())
+  notes       String?
+  createdById Int
+  createdBy   User            @relation(fields: [createdById], references: [id])
+  createdAt   TimestamptzString @default(now())
+}
+
+model SalaryPayment {
+  id            Int           @id @default(autoincrement())
+  employeeName  String
+  employeeEmail String?
+  role          String
+  month         Int
+  year          Int
+  amount        Float
+  paymentDate   TimestamptzString @default(now())
+  paymentMethod PaymentMethod @default(NETBANKING)
+  reference     String?
+  notes         String?
+  paidById      Int
+  paidBy        User          @relation(fields: [paidById], references: [id])
+  createdAt     TimestamptzString @default(now())
 }
