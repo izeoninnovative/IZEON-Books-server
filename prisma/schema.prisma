@@ -170,3 +170,19 @@ model SalaryPayment {
   paidBy        User          @relation(fields: [paidById], references: [id])
   createdAt     TimestamptzString @default(now())
 }
+
+model CompanyProfile {
+  id          Int      @id @default(autoincrement())
+  companyName String   @default("IZEON INNOVATIVE")
+  tagline     String?  @default("Academy of Computer Software Training")
+  gstin       String?
+  address     String?  @default("Tamil Nadu, India")
+  city        String?
+  state       String?  @default("Tamil Nadu")
+  pincode     String?
+  phone       String?
+  email       String?
+  website     String?
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+}

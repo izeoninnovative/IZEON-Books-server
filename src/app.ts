@@ -5,6 +5,7 @@ import courseRoutes from "./routes/course.routes.js";
 import studentRoutes from "./routes/student.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import companyRoutes from "./routes/company.routes.js";
 
 const app: Application = express();
 
@@ -25,6 +26,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/company", companyRoutes);
 
 // Health check endpoint
 app.get("/health-check", (_req: Request, res: Response) => {
