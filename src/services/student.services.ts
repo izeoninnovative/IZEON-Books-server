@@ -165,6 +165,32 @@ export const getStudentDetails = async (studentId: number) => {
   let emiSchedules: any[] = [];
   if (feePlan) {
     emiSchedules = await db.orm.public.EmiSchedule.where({ feePlanId: feePlan.id }).all();
+
+    // If fee plan is fully cleared (balance <= 0 or paid >= total), auto-heal database consistency
+    if (feePlan.balanceAmount <= 0 || feePlan.paidAmount >= feePlan.totalAmount) {
+      const sanitizedPaid = Math.min(feePlan.paidAmount, feePlan.totalAmount);
+      if (feePlan.balanceAmount !== 0 || feePlan.paidAmount !== sanitizedPaid) {
+        await db.orm.public.FeePlan.where({ id: feePlan.id }).update({
+          paidAmount: sanitizedPaid,
+          balanceAmount: 0,
+        });
+        feePlan.paidAmount = sanitizedPaid;
+        feePlan.balanceAmount = 0;
+      }
+
+      // Mark all lingering pending EMIs as PAID
+      const nowIso = new Date().toISOString();
+      for (const emi of emiSchedules) {
+        if (emi.status !== "PAID") {
+          await db.orm.public.EmiSchedule.where({ id: emi.id }).update({
+            status: "PAID",
+            paidDate: emi.paidDate || nowIso,
+          });
+          emi.status = "PAID";
+          emi.paidDate = emi.paidDate || nowIso;
+        }
+      }
+    }
   }
 
   const invoices = await db.orm.public.Invoice.where({ studentId }).all();

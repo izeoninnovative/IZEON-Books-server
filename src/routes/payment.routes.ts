@@ -6,6 +6,7 @@ const router = Router();
 
 // Both ADMIN and HR can accept payments and view invoices
 router.post("/pay-emi", verifyToken, requireRole(["ADMIN", "HR"]), payEmiInstallment);
+router.post("/emi", verifyToken, requireRole(["ADMIN", "HR"]), payEmiInstallment);
 router.get("/invoices", verifyToken, requireRole(["ADMIN", "HR"]), getAllInvoices);
 router.get("/invoices/:id", verifyToken, requireRole(["ADMIN", "HR"]), getInvoiceById);
 

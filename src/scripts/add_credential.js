@@ -49,8 +49,6 @@ async function seedCredentialsData(){
         }
     }
 
-   
-
     await client.end();
 }
 

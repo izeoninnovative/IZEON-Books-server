@@ -23,25 +23,75 @@ export const payEmiInstallment = async (data: PayEmiDTO) => {
     throw new Error("Associated fee plan not found");
   }
 
+  const remainingBalance = Math.max(0, Math.round(Number(feePlan.balanceAmount) * 100) / 100);
+
+  if (remainingBalance <= 0) {
+    throw new Error("This student's course fee is already fully paid. No outstanding balance remains.");
+  }
+
+  const amountToPay = Math.round(Number(data.amountPaid) * 100) / 100;
+  if (amountToPay <= 0) {
+    throw new Error("Payment amount must be greater than zero");
+  }
+
+  // Strict accounting validation: Prevent excess payment
+  if (amountToPay > remainingBalance) {
+    throw new Error(
+      `Payment amount ₹${amountToPay.toLocaleString("en-IN")} exceeds the remaining balance of ₹${remainingBalance.toLocaleString("en-IN")}. Please collect only up to ₹${remainingBalance.toLocaleString("en-IN")}.`
+    );
+  }
+
   const student = await db.orm.public.Student.where({ id: feePlan.studentId }).first();
   if (!student) {
     throw new Error("Student record not found");
   }
 
-  // 1. Mark EMI schedule as PAID
+  // 1. Mark target EMI schedule as PAID
+  const nowIso = new Date().toISOString();
   const updatedEmi = await db.orm.public.EmiSchedule.where({ id: emi.id }).update({
     status: "PAID",
-    paidDate: new Date().toISOString(),
+    paidDate: nowIso,
   });
 
   // 2. Update FeePlan paid and balance amounts
-  const newPaidAmount = feePlan.paidAmount + Number(data.amountPaid);
-  const newBalanceAmount = Math.max(0, feePlan.totalAmount - newPaidAmount);
+  const newPaidAmount = Math.min(feePlan.totalAmount, Math.round((feePlan.paidAmount + amountToPay) * 100) / 100);
+  const newBalanceAmount = Math.max(0, Math.round((feePlan.totalAmount - newPaidAmount) * 100) / 100);
 
   await db.orm.public.FeePlan.where({ id: feePlan.id }).update({
     paidAmount: newPaidAmount,
     balanceAmount: newBalanceAmount,
   });
+
+  // 3. If full payment is achieved (balance is 0), automatically clear ALL remaining EMIs!
+  if (newBalanceAmount <= 0) {
+    const allEmis = await db.orm.public.EmiSchedule.where({ feePlanId: feePlan.id }).all();
+    for (const sched of allEmis) {
+      if (sched.status !== "PAID") {
+        await db.orm.public.EmiSchedule.where({ id: sched.id }).update({
+          status: "PAID",
+          paidDate: nowIso,
+        });
+      }
+    }
+  } else if (amountToPay > emi.amount) {
+    // If student paid excess that covers subsequent installments, mark them as paid too
+    let surplus = amountToPay - emi.amount;
+    const futurePendingEmis = await db.orm.public.EmiSchedule
+      .where({ feePlanId: feePlan.id, status: "PENDING" })
+      .all();
+    futurePendingEmis.sort((a, b) => a.installmentNo - b.installmentNo);
+
+    for (const future of futurePendingEmis) {
+      if (future.id === emi.id) continue;
+      if (surplus >= future.amount) {
+        await db.orm.public.EmiSchedule.where({ id: future.id }).update({
+          status: "PAID",
+          paidDate: nowIso,
+        });
+        surplus -= future.amount;
+      }
+    }
+  }
 
   // 3. Generate Invoice Receipt
   const invoiceNo = await generateInvoiceNo(feePlan.invoiceType);
