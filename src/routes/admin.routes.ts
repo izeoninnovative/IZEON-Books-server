@@ -18,6 +18,8 @@ router.use(verifyToken, requireRole(["ADMIN"]));
 // 1. HR User Management (Only Admin)
 router.post("/hr", createHR);
 router.get("/hr", getAllHRs);
+router.post("/hr-users", createHR);
+router.get("/hr-users", getAllHRs);
 
 // 2. Office Expenses (Only Admin)
 router.post("/expenses", createExpense);
