@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'acd894702abdaaaeb3754624a0b833c5aa8eddb073ee2cca57032b501e5566d8'>;
+  StorageHashBase<'db5ed758f2e5eb1b5fc6d08d16029fce2d73d624da54570978605ad262a04b00'>;
 export type ExecutionHash =
   ExecutionHashBase<'daf905d771dce9392f785fc07403fceecc1b719c7a7ca602c49afddd428199e2'>;
 export type ProfileHash =
@@ -1149,6 +1149,12 @@ type ContractBase = Omit<
                   readonly columns: readonly ['feePlanId'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'EmiSchedule_status_idx_e98638ab';
+                  readonly prefix: 'EmiSchedule_status_idx';
+                  readonly columns: readonly ['status'];
+                  readonly unique: false;
+                },
               ];
               foreignKeys: readonly [
                 {
@@ -1225,6 +1231,12 @@ type ContractBase = Omit<
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
               indexes: readonly [
+                {
+                  readonly name: 'Expense_category_idx_f2600f8e';
+                  readonly prefix: 'Expense_category_idx';
+                  readonly columns: readonly ['category'];
+                  readonly unique: false;
+                },
                 {
                   readonly name: 'Expense_createdById_idx_8bf640ed';
                   readonly prefix: 'Expense_createdById_idx';
@@ -1670,6 +1682,12 @@ type ContractBase = Omit<
                   readonly columns: readonly ['paidById'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'SalaryPayment_year_month_idx_58ea64fc';
+                  readonly prefix: 'SalaryPayment_year_month_idx';
+                  readonly columns: readonly ['year', 'month'];
+                  readonly unique: false;
+                },
               ];
               foreignKeys: readonly [
                 {
@@ -1772,6 +1790,18 @@ type ContractBase = Omit<
                   readonly name: 'Student_courseId_idx_12f72d2a';
                   readonly prefix: 'Student_courseId_idx';
                   readonly columns: readonly ['courseId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Student_phone_idx_8db23f45';
+                  readonly prefix: 'Student_phone_idx';
+                  readonly columns: readonly ['phone'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Student_status_idx_e98638ab';
+                  readonly prefix: 'Student_status_idx';
+                  readonly columns: readonly ['status'];
                   readonly unique: false;
                 },
               ];

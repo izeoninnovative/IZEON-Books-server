@@ -84,6 +84,10 @@ model Student {
   updatedAt temporal.updatedAtString()
   feePlans  FeePlan[]
   invoices  Invoice[]
+
+  @@index([phone])
+  @@index([courseId])
+  @@index([status])
 }
 
 model FeePlan {
@@ -105,6 +109,8 @@ model FeePlan {
   updatedAt         temporal.updatedAtString()
   emiSchedules      EmiSchedule[]
   invoices          Invoice[]
+
+  @@index([studentId])
 }
 
 model EmiSchedule {
@@ -119,6 +125,9 @@ model EmiSchedule {
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
   invoices      Invoice[]
+
+  @@index([feePlanId])
+  @@index([status])
 }
 
 model Invoice {
@@ -140,6 +149,9 @@ model Invoice {
   totalAmount    Float
   issuedAt       TimestamptzString @default(now())
   createdAt      TimestamptzString @default(now())
+
+  @@index([studentId])
+  @@index([feePlanId])
 }
 
 model Expense {
@@ -152,6 +164,8 @@ model Expense {
   createdById Int
   createdBy   User            @relation(fields: [createdById], references: [id])
   createdAt   TimestamptzString @default(now())
+
+  @@index([category])
 }
 
 model SalaryPayment {
@@ -169,6 +183,8 @@ model SalaryPayment {
   paidById      Int
   paidBy        User          @relation(fields: [paidById], references: [id])
   createdAt     TimestamptzString @default(now())
+
+  @@index([year, month])
 }
 
 model CompanyProfile {
