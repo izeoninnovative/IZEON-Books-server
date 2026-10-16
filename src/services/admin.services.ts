@@ -28,8 +28,62 @@ export const createHRUser = async (data: CreateHRDTO) => {
 
 export const getAllHRUsers = async () => {
   const users = await db.orm.public.User.where({ role: "HR" }).all();
-  return users.map(({ password, ...user }) => user);
+  const allInvoices = await db.orm.public.Invoice.all() // get all invoices
+  return users.map(({ password, ...user }) => {
+    const hrInvoices = allInvoices.filter((invoice) => invoice.createdById === user.id )
+    const totalRevenueGenerated = hrInvoices.reduce((acc, curr) => acc + (curr.amountPaid || 0), 0)
+
+   return{
+      ...user,
+      totalRevenueGenerated: Math.round(totalRevenueGenerated * 100) / 100,
+      invoiceCount: hrInvoices.length
+   } 
+   
+  });
 };
+
+export interface UpdateHRDTO {
+  username?: string;
+  email?: string;
+  password?: string;
+  role?: "ADMIN" | "HR";
+}
+
+export const updateHRUser = async (id: number, data: UpdateHRDTO) => {
+  const existingUser = await db.orm.public.User.where({ id }).first();
+  if (!existingUser) {
+    throw new Error("HR account not found");
+  }
+
+  // If email is changed, verify uniqueness
+  if (data.email && data.email !== existingUser.email) {
+    const emailConflict = await db.orm.public.User.where({ email: data.email }).first();
+    if (emailConflict && emailConflict.id !== id) {
+      throw new Error("User with this email already exists");
+    }
+  }
+
+  const updateFields: any = {};
+  if (data.username !== undefined) updateFields.username = data.username.trim();
+  if (data.email !== undefined) updateFields.email = data.email.trim();
+  if (data.role !== undefined) updateFields.role = data.role;
+  if (data.password && data.password.trim().length > 0) {
+    if (data.password.trim().length < 6) {
+      throw new Error("Password must be at least 6 characters");
+    }
+    updateFields.password = await bcrypt.hash(data.password.trim(), 10);
+  }
+
+  await db.orm.public.User.where({ id }).update(updateFields);
+  const updated = await db.orm.public.User.where({ id }).first();
+  if (!updated) {
+    throw new Error("HR account update failed");
+  }
+  const { password, ...safeUser } = updated;
+  return safeUser;
+};
+
+
 
 // ==================== EXPENSE MANAGEMENT ====================
 export interface CreateExpenseDTO {

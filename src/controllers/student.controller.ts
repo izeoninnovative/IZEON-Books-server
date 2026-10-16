@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
+import { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 import * as studentService from "../services/student.services.js";
 
-export const registerStudent = async (req: Request, res: Response) => {
+export const registerStudent = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       name,
@@ -44,6 +45,7 @@ export const registerStudent = async (req: Request, res: Response) => {
       emiDueDayOfMonth: emiDueDayOfMonth ? Number(emiDueDayOfMonth) : 5,
       paymentMethod,
       transactionRef,
+      createdById: req.user?.id 
     });
 
     return res.status(201).json({
@@ -74,3 +76,32 @@ export const getStudentDetails = async (req: Request, res: Response) => {
     return res.status(404).json({ success: false, message: err.message });
   }
 };
+
+export const updateStudent = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const studentId = Number(req.params.id);
+    if (!studentId || isNaN(studentId)) {
+      return res.status(400).json({ success: false, message: "Valid student ID is required" });
+    }
+
+    const { name, email, phone, dob, address, courseId, status } = req.body;
+    const updated = await studentService.updateStudent(studentId, {
+      name,
+      email,
+      phone,
+      dob,
+      address,
+      courseId: courseId ? Number(courseId) : undefined,
+      status,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Student details updated successfully",
+      data: updated,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+};
+

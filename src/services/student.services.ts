@@ -1,4 +1,5 @@
 import { db } from "../prisma/db.js";
+import { sendInvoiceReceiptEmail } from "./email.services.js";
 
 export interface RegisterStudentDTO {
   name: string;
@@ -16,6 +17,7 @@ export interface RegisterStudentDTO {
   emiDueDayOfMonth?: number; // e.g. 5 for 5th of each month
   paymentMethod?: "CASH" | "UPI" | "CARD" | "NETBANKING" | "CHEQUE";
   transactionRef?: string;
+  createdById?: number;
 }
 
 // Generate unique invoice number: INV-2026-0001
@@ -118,6 +120,7 @@ export const registerStudentWithFees = async (data: RegisterStudentDTO) => {
       studentId: student.id,
       feePlanId: feePlan.id,
       emiScheduleId: null,
+      createdById: data.createdById || null,
       invoiceType: data.invoiceType,
       paymentMethod: data.paymentMethod || "UPI",
       transactionRef: data.transactionRef || null,
@@ -127,6 +130,23 @@ export const registerStudentWithFees = async (data: RegisterStudentDTO) => {
       sgstAmount: halfGst,
       totalAmount: paidAmount,
     });
+
+    // Automatically send receipt to student via email (runs asynchronously)
+    sendInvoiceReceiptEmail({
+      studentName: student.name,
+      studentEmail: student.email,
+      invoiceNo: initialInvoice.invoiceNo,
+      invoiceType: data.invoiceType,
+      amountPaid: paidAmount,
+      taxableAmount: invoiceTaxable,
+      cgstAmount: halfGst,
+      sgstAmount: halfGst,
+      paymentMethod: data.paymentMethod || "UPI",
+      transactionRef: data.transactionRef || null,
+      issuedAt: initialInvoice.issuedAt,
+      courseTitle: course.title,
+      balanceAmount: balanceAmount,
+    }).catch((err: any) => console.error("[Email Error]", err));
   }
 
   return {
@@ -203,3 +223,60 @@ export const getStudentDetails = async (studentId: number) => {
     invoices,
   };
 };
+
+export interface UpdateStudentDTO {
+  name?: string;
+  email?: string;
+  phone?: string;
+  dob?: string;
+  address?: string | null;
+  courseId?: number;
+  status?: "ACTIVE" | "COMPLETED" | "DROPPED";
+}
+
+export const updateStudent = async (studentId: number, data: UpdateStudentDTO) => {
+  const existingStudent = await db.orm.public.Student.where({ id: studentId }).first();
+  if (!existingStudent) {
+    throw new Error("Student not found");
+  }
+
+  // If email is changed, verify uniqueness
+  if (data.email && data.email !== existingStudent.email) {
+    const emailConflict = await db.orm.public.Student.where({ email: data.email }).first();
+    if (emailConflict && emailConflict.id !== studentId) {
+      throw new Error(`Student with email ${data.email} already exists`);
+    }
+  }
+
+  // If courseId is changed, verify course exists
+  if (data.courseId && data.courseId !== existingStudent.courseId) {
+    const course = await db.orm.public.Course.where({ id: data.courseId }).first();
+    if (!course) {
+      throw new Error("Selected course does not exist");
+    }
+  }
+
+  const updateFields: any = {};
+  if (data.name !== undefined) updateFields.name = data.name.trim();
+  if (data.email !== undefined) updateFields.email = data.email.trim();
+  if (data.phone !== undefined) updateFields.phone = data.phone.trim();
+  if (data.dob !== undefined) updateFields.dob = data.dob;
+  if (data.address !== undefined) updateFields.address = data.address ? data.address.trim() : null;
+  if (data.courseId !== undefined) updateFields.courseId = Number(data.courseId);
+  if (data.status !== undefined) updateFields.status = data.status;
+
+  await db.orm.public.Student.where({ id: studentId }).update(updateFields);
+
+  const updatedStudent = await db.orm.public.Student.where({ id: studentId }).first();
+  if (!updatedStudent) {
+    throw new Error("Student update failed");
+  }
+  const updatedCourse = await db.orm.public.Course.where({ id: updatedStudent.courseId }).first();
+
+  return {
+    ...updatedStudent,
+    courseTitle: updatedCourse?.title || "N/A",
+  };
+};
+
+

@@ -55,6 +55,7 @@ model User {
   updatedAt temporal.updatedAtString()
   expenses  Expense[]
   salaries  SalaryPayment[]
+  invoices  Invoice[]
 }
 
 model Course {
@@ -139,6 +140,12 @@ model Invoice {
   feePlan        FeePlan       @relation(fields: [feePlanId], references: [id])
   emiScheduleId  Int?
   emiSchedule    EmiSchedule?  @relation(fields: [emiScheduleId], references: [id])
+  
+  // --- ADD THIS ---
+  createdById    Int?          // Optional for existing rows, or make required if migrated
+  createdBy      User?         @relation(fields: [createdById], references: [id])
+  // ----------------
+  
   invoiceType    InvoiceType
   paymentMethod  PaymentMethod @default(UPI)
   transactionRef String?
@@ -152,7 +159,9 @@ model Invoice {
 
   @@index([studentId])
   @@index([feePlanId])
+  @@index([createdById])
 }
+
 
 model Expense {
   id          Int             @id @default(autoincrement())

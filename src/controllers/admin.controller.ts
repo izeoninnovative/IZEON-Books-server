@@ -26,6 +26,26 @@ export const getAllHRs = async (_req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+export const updateHR = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const hrId = Number(req.params.id);
+    if (!hrId || isNaN(hrId)) {
+      return res.status(400).json({ success: false, message: "Valid HR user ID is required" });
+    }
+
+    const { username, email, password, role } = req.body;
+    const updated = await adminService.updateHRUser(hrId, { username, email, password, role });
+    return res.status(200).json({
+      success: true,
+      message: "HR staff account updated successfully",
+      data: updated,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+
 // 2. Expense Recording
 export const createExpense = async (req: AuthenticatedRequest, res: Response) => {
   try {
