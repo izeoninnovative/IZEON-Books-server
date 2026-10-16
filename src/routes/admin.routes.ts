@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createHR,
   getAllHRs,
+  updateHR,
   createExpense,
   getAllExpenses,
   recordSalary,
@@ -18,8 +19,11 @@ router.use(verifyToken, requireRole(["ADMIN"]));
 // 1. HR User Management (Only Admin)
 router.post("/hr", createHR);
 router.get("/hr", getAllHRs);
+router.put("/hr/:id", updateHR);
 router.post("/hr-users", createHR);
 router.get("/hr-users", getAllHRs);
+router.put("/hr-users/:id", updateHR);
+
 
 // 2. Office Expenses (Only Admin)
 router.post("/expenses", createExpense);

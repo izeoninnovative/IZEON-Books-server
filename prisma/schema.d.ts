@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'db5ed758f2e5eb1b5fc6d08d16029fce2d73d624da54570978605ad262a04b00'>;
+  StorageHashBase<'d7225792129471d026a075564d6d38ea28fe191ab1f8619585244f2384167140'>;
 export type ExecutionHash =
   ExecutionHashBase<'daf905d771dce9392f785fc07403fceecc1b719c7a7ca602c49afddd428199e2'>;
 export type ProfileHash =
@@ -302,6 +302,7 @@ export type FieldOutputTypes = {
       readonly amountPaid: CodecTypes['pg/float8@1']['output'];
       readonly cgstAmount: CodecTypes['pg/float8@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly createdById: CodecTypes['pg/int4@1']['output'] | null;
       readonly emiScheduleId: CodecTypes['pg/int4@1']['output'] | null;
       readonly feePlanId: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -424,6 +425,7 @@ export type FieldInputTypes = {
       readonly amountPaid: CodecTypes['pg/float8@1']['input'];
       readonly cgstAmount: CodecTypes['pg/float8@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly createdById: CodecTypes['pg/int4@1']['input'] | null;
       readonly emiScheduleId: CodecTypes['pg/int4@1']['input'] | null;
       readonly feePlanId: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -546,6 +548,7 @@ export type StorageColumnTypes = {
       readonly amountPaid: CodecTypes['pg/float8@1']['output'];
       readonly cgstAmount: CodecTypes['pg/float8@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly createdById: CodecTypes['pg/int4@1']['output'] | null;
       readonly emiScheduleId: CodecTypes['pg/int4@1']['output'] | null;
       readonly feePlanId: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -668,6 +671,7 @@ export type StorageColumnInputTypes = {
       readonly amountPaid: CodecTypes['pg/float8@1']['input'];
       readonly cgstAmount: CodecTypes['pg/float8@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly createdById: CodecTypes['pg/int4@1']['input'] | null;
       readonly emiScheduleId: CodecTypes['pg/int4@1']['input'] | null;
       readonly feePlanId: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -801,6 +805,7 @@ export namespace Models {
     amountPaid: CodecTypes['pg/float8@1']['output'];
     cgstAmount: CodecTypes['pg/float8@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    createdById: CodecTypes['pg/int4@1']['output'] | null;
     emiScheduleId: CodecTypes['pg/int4@1']['output'] | null;
     feePlanId: CodecTypes['pg/int4@1']['output'];
     id: CodecTypes['pg/int4@1']['output'];
@@ -813,10 +818,11 @@ export namespace Models {
     taxableAmount: CodecTypes['pg/float8@1']['output'];
     totalAmount: CodecTypes['pg/float8@1']['output'];
     transactionRef: CodecTypes['pg/text@1']['output'] | null;
+    createdBy: public_User | null;
     emiSchedule: public_EmiSchedule | null;
     feePlan: public_FeePlan;
     student: public_Student;
-    readonly [RelationKeys]?: 'emiSchedule' | 'feePlan' | 'student';
+    readonly [RelationKeys]?: 'createdBy' | 'emiSchedule' | 'feePlan' | 'student';
   };
   export type public_SalaryPayment = {
     amount: CodecTypes['pg/float8@1']['output'];
@@ -861,8 +867,9 @@ export namespace Models {
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     username: CodecTypes['pg/text@1']['output'];
     expenses: public_Expense[];
+    invoices: public_Invoice[];
     salaries: public_SalaryPayment[];
-    readonly [RelationKeys]?: 'expenses' | 'salaries';
+    readonly [RelationKeys]?: 'expenses' | 'invoices' | 'salaries';
   };
 }
 
@@ -1435,6 +1442,12 @@ type ContractBase = Omit<
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                   readonly many: false;
                 };
+                readonly createdById: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly emiScheduleId: {
                   readonly dataType: 'pg/int4';
                   readonly codecId: 'pg/int4@1';
@@ -1525,6 +1538,12 @@ type ContractBase = Omit<
               uniques: readonly [{ readonly columns: readonly ['invoiceNo'] }];
               indexes: readonly [
                 {
+                  readonly name: 'Invoice_createdById_idx_8bf640ed';
+                  readonly prefix: 'Invoice_createdById_idx';
+                  readonly columns: readonly ['createdById'];
+                  readonly unique: false;
+                },
+                {
                   readonly name: 'Invoice_emiScheduleId_idx_fce35972';
                   readonly prefix: 'Invoice_emiScheduleId_idx';
                   readonly columns: readonly ['emiScheduleId'];
@@ -1577,6 +1596,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'EmiSchedule';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Invoice';
+                    readonly columns: readonly ['createdById'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -2402,6 +2433,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
               };
+              readonly createdById: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly emiScheduleId: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
@@ -2455,6 +2490,15 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly createdBy: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['createdById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly emiSchedule: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2499,6 +2543,7 @@ type ContractBase = Omit<
                 readonly amountPaid: { readonly column: 'amountPaid' };
                 readonly cgstAmount: { readonly column: 'cgstAmount' };
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly createdById: { readonly column: 'createdById' };
                 readonly emiScheduleId: { readonly column: 'emiScheduleId' };
                 readonly feePlanId: { readonly column: 'feePlanId' };
                 readonly id: { readonly column: 'id' };
@@ -2758,6 +2803,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Expense';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['createdById'];
+                };
+              };
+              readonly invoices: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Invoice';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {

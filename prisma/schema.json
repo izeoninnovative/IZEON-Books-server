@@ -922,6 +922,13 @@
                   "kind": "scalar"
                 }
               },
+              "createdById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "emiScheduleId": {
                 "nullable": true,
                 "type": {
@@ -1020,6 +1027,22 @@
               }
             },
             "relations": {
+              "createdBy": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "createdById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
               "emiSchedule": {
                 "cardinality": "N:1",
                 "nullable": true,
@@ -1079,6 +1102,9 @@
                 },
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "createdById": {
+                  "column": "createdById"
                 },
                 "emiScheduleId": {
                   "column": "emiScheduleId"
@@ -1530,6 +1556,21 @@
                 },
                 "to": {
                   "model": "Expense",
+                  "namespace": "public"
+                }
+              },
+              "invoices": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "createdById"
+                  ]
+                },
+                "to": {
+                  "model": "Invoice",
                   "namespace": "public"
                 }
               },
@@ -2207,6 +2248,11 @@
                   },
                   "nullable": false
                 },
+                "createdById": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
                 "emiScheduleId": {
                   "codecId": "pg/int4@1",
                   "dataType": "pg/int4",
@@ -2353,9 +2399,36 @@
                     "namespaceId": "public",
                     "tableName": "EmiSchedule"
                   }
+                },
+                {
+                  "index": {
+                    "name": "Invoice_createdById_idx_8bf640ed"
+                  },
+                  "source": {
+                    "columns": [
+                      "createdById"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Invoice"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "createdById"
+                  ],
+                  "name": "Invoice_createdById_idx_8bf640ed",
+                  "prefix": "Invoice_createdById_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "emiScheduleId"
@@ -2830,7 +2903,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "db5ed758f2e5eb1b5fc6d08d16029fce2d73d624da54570978605ad262a04b00"
+    "storageHash": "d7225792129471d026a075564d6d38ea28fe191ab1f8619585244f2384167140"
   },
   "execution": {
     "executionHash": "daf905d771dce9392f785fc07403fceecc1b719c7a7ca602c49afddd428199e2",
