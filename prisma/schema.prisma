@@ -45,6 +45,11 @@ enum StudentStatus {
   DROPPED
 }
 
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   username  String
@@ -177,14 +182,59 @@ model Expense {
   @@index([category])
 }
 
+model Employee {
+  id              Int            @id @default(autoincrement())
+  empCode         String         @unique
+  name            String
+  email           String?
+  phone           String?
+  role            String
+  department      String?
+  joiningDate     String?
+  baseSalary      Float          @default(0)
+  appraisalDate   String?
+  status          EmployeeStatus @default(ACTIVE)
+  bankName        String?
+  accountNumber   String?
+  ifscCode        String?
+  notes           String?
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
+  salaries        SalaryPayment[]
+  lopRecords      EmployeeLop[]
+
+  @@index([empCode])
+  @@index([status])
+}
+
+model EmployeeLop {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  month       Int
+  year        Int
+  lopDays     Float    @default(0)
+  lopAmount   Float    @default(0)
+  reason      String?
+  createdAt   TimestamptzString @default(now())
+
+  @@index([employeeId])
+  @@index([year, month])
+}
+
 model SalaryPayment {
   id            Int           @id @default(autoincrement())
+  employeeId    Int?
+  employee      Employee?     @relation(fields: [employeeId], references: [id])
   employeeName  String
   employeeEmail String?
   role          String
   month         Int
   year          Int
   amount        Float
+  baseSalary    Float?
+  lopDays       Float?        @default(0)
+  lopDeduction  Float?        @default(0)
   paymentDate   TimestamptzString @default(now())
   paymentMethod PaymentMethod @default(NETBANKING)
   reference     String?
@@ -194,6 +244,7 @@ model SalaryPayment {
   createdAt     TimestamptzString @default(now())
 
   @@index([year, month])
+  @@index([employeeId])
 }
 
 model CompanyProfile {

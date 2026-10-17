@@ -111,14 +111,168 @@ export const getAllExpenses = async () => {
   return expenses.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 };
 
-// ==================== PAYROLL & SALARY ====================
+// ==================== EMPLOYEES & PAYROLL ====================
+export interface CreateEmployeeDTO {
+  empCode?: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  role: string;
+  department?: string;
+  joiningDate?: string;
+  baseSalary: number;
+  appraisalDate?: string;
+  status?: "ACTIVE" | "INACTIVE";
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  notes?: string;
+}
+
+export interface UpdateEmployeeDTO {
+  empCode?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  department?: string;
+  joiningDate?: string;
+  baseSalary?: number;
+  appraisalDate?: string;
+  status?: "ACTIVE" | "INACTIVE";
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  notes?: string;
+}
+
+export const generateEmployeeCode = async (): Promise<string> => {
+  const employees = await db.orm.public.Employee.all();
+  const nextNumber = employees.length + 1;
+  return `EMP-${String(nextNumber).padStart(3, "0")}`;
+};
+
+export const createEmployee = async (data: CreateEmployeeDTO) => {
+  const empCode = data.empCode?.trim() || (await generateEmployeeCode());
+  
+  // Verify code uniqueness
+  const existing = await db.orm.public.Employee.where({ empCode }).first();
+  if (existing) {
+    throw new Error(`Employee with ID/Code ${empCode} already exists`);
+  }
+
+  return await db.orm.public.Employee.create({
+    empCode,
+    name: data.name.trim(),
+    email: data.email?.trim() || null,
+    phone: data.phone?.trim() || null,
+    role: data.role.trim(),
+    department: data.department?.trim() || null,
+    joiningDate: data.joiningDate || null,
+    baseSalary: Number(data.baseSalary) || 0,
+    appraisalDate: data.appraisalDate || null,
+    status: data.status || "ACTIVE",
+    bankName: data.bankName?.trim() || null,
+    accountNumber: data.accountNumber?.trim() || null,
+    ifscCode: data.ifscCode?.trim() || null,
+    notes: data.notes?.trim() || null,
+  });
+};
+
+export const getAllEmployees = async () => {
+  const employees = await db.orm.public.Employee.all();
+  const salaries = await db.orm.public.SalaryPayment.all();
+  const lopRecords = await db.orm.public.EmployeeLop.all();
+
+  return employees
+    .map((emp) => {
+      const empSalaries = salaries.filter((s) => s.employeeId === emp.id);
+      const empLops = lopRecords.filter((l) => l.employeeId === emp.id);
+      const totalPaid = empSalaries.reduce((acc, curr) => acc + curr.amount, 0);
+      const totalLopDays = empLops.reduce((acc, curr) => acc + (curr.lopDays || 0), 0);
+
+      return {
+        ...emp,
+        salaryHistoryCount: empSalaries.length,
+        totalSalaryPaid: Math.round(totalPaid * 100) / 100,
+        totalLopDaysRecorded: totalLopDays,
+        recentSalaries: empSalaries.slice(0, 5),
+      };
+    })
+    .sort((a, b) => a.empCode.localeCompare(b.empCode));
+};
+
+export const getEmployeeById = async (id: number) => {
+  const employee = await db.orm.public.Employee.where({ id }).first();
+  if (!employee) {
+    throw new Error("Employee not found");
+  }
+
+  const salaries = await db.orm.public.SalaryPayment.where({ employeeId: id }).all();
+  const lopRecords = await db.orm.public.EmployeeLop.where({ employeeId: id }).all();
+
+  return {
+    ...employee,
+    salaries: salaries.sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime()),
+    lopRecords: lopRecords.sort((a, b) => b.year - a.year || b.month - a.month),
+  };
+};
+
+export const updateEmployee = async (id: number, data: UpdateEmployeeDTO) => {
+  const employee = await db.orm.public.Employee.where({ id }).first();
+  if (!employee) {
+    throw new Error("Employee not found");
+  }
+
+  if (data.empCode && data.empCode !== employee.empCode) {
+    const existing = await db.orm.public.Employee.where({ empCode: data.empCode }).first();
+    if (existing && existing.id !== id) {
+      throw new Error(`Employee with ID/Code ${data.empCode} already exists`);
+    }
+  }
+
+  const updateFields: any = {};
+  if (data.empCode !== undefined) updateFields.empCode = data.empCode.trim();
+  if (data.name !== undefined) updateFields.name = data.name.trim();
+  if (data.email !== undefined) updateFields.email = data.email ? data.email.trim() : null;
+  if (data.phone !== undefined) updateFields.phone = data.phone ? data.phone.trim() : null;
+  if (data.role !== undefined) updateFields.role = data.role.trim();
+  if (data.department !== undefined) updateFields.department = data.department ? data.department.trim() : null;
+  if (data.joiningDate !== undefined) updateFields.joiningDate = data.joiningDate || null;
+  if (data.baseSalary !== undefined) updateFields.baseSalary = Number(data.baseSalary) || 0;
+  if (data.appraisalDate !== undefined) updateFields.appraisalDate = data.appraisalDate || null;
+  if (data.status !== undefined) updateFields.status = data.status;
+  if (data.bankName !== undefined) updateFields.bankName = data.bankName ? data.bankName.trim() : null;
+  if (data.accountNumber !== undefined) updateFields.accountNumber = data.accountNumber ? data.accountNumber.trim() : null;
+  if (data.ifscCode !== undefined) updateFields.ifscCode = data.ifscCode ? data.ifscCode.trim() : null;
+  if (data.notes !== undefined) updateFields.notes = data.notes ? data.notes.trim() : null;
+
+  await db.orm.public.Employee.where({ id }).update(updateFields);
+  return await db.orm.public.Employee.where({ id }).first();
+};
+
+export const deleteEmployee = async (id: number) => {
+  const employee = await db.orm.public.Employee.where({ id }).first();
+  if (!employee) {
+    throw new Error("Employee not found");
+  }
+
+  // Instead of deleting, set status to INACTIVE to preserve financial & audit history
+  await db.orm.public.Employee.where({ id }).update({ status: "INACTIVE" });
+  return { success: true, message: "Employee deactivated successfully" };
+};
+
 export interface RecordSalaryDTO {
+  employeeId?: number;
   employeeName: string;
   employeeEmail?: string;
   role: string;
   month: number;
   year: number;
   amount: number;
+  baseSalary?: number;
+  lopDays?: number;
+  lopDeduction?: number;
   paymentMethod?: "CASH" | "UPI" | "CARD" | "NETBANKING" | "CHEQUE";
   reference?: string;
   notes?: string;
@@ -126,24 +280,60 @@ export interface RecordSalaryDTO {
 }
 
 export const recordSalaryPayment = async (data: RecordSalaryDTO) => {
-  return await db.orm.public.SalaryPayment.create({
+  const salary = await db.orm.public.SalaryPayment.create({
+    employeeId: data.employeeId || null,
     employeeName: data.employeeName,
     employeeEmail: data.employeeEmail || null,
     role: data.role,
     month: Number(data.month),
     year: Number(data.year),
     amount: Number(data.amount),
+    baseSalary: data.baseSalary !== undefined ? Number(data.baseSalary) : null,
+    lopDays: Number(data.lopDays || 0),
+    lopDeduction: Number(data.lopDeduction || 0),
     paymentDate: new Date().toISOString(),
     paymentMethod: data.paymentMethod || "NETBANKING",
     reference: data.reference || null,
     notes: data.notes || null,
     paidById: data.paidById,
   });
+
+  // If employee is selected and LOP days > 0, log an EmployeeLop record
+  if (data.employeeId && Number(data.lopDays) > 0) {
+    try {
+      await db.orm.public.EmployeeLop.create({
+        employeeId: data.employeeId,
+        month: Number(data.month),
+        year: Number(data.year),
+        lopDays: Number(data.lopDays),
+        lopAmount: Number(data.lopDeduction || 0),
+        reason: data.notes || `Salary deduction of ₹${data.lopDeduction || 0} for ${data.lopDays} LOP day(s)`,
+      });
+    } catch (lopErr) {
+      console.error("[LOP Log Error]", lopErr);
+    }
+  }
+
+  return salary;
 };
 
 export const getAllSalaries = async () => {
   const salaries = await db.orm.public.SalaryPayment.all();
-  return salaries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const employees = await db.orm.public.Employee.all();
+
+  return salaries
+    .map((s) => {
+      const emp = s.employeeId ? employees.find((e) => e.id === s.employeeId) : null;
+      return {
+        ...s,
+        employeeCode: emp?.empCode || null,
+        department: emp?.department || null,
+        bankName: emp?.bankName || null,
+        accountNumber: emp?.accountNumber || null,
+        appraisalDate: emp?.appraisalDate || null,
+      };
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 };
 
 // ==================== FINANCIAL REPORTS & ANALYTICS ====================
