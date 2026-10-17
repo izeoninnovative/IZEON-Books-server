@@ -5,6 +5,11 @@ import {
   updateHR,
   createExpense,
   getAllExpenses,
+  createEmployee,
+  getAllEmployees,
+  getEmployeeById,
+  updateEmployee,
+  deleteEmployee,
   recordSalary,
   getAllSalaries,
   getFinancialReport,
@@ -29,7 +34,14 @@ router.put("/hr-users/:id", updateHR);
 router.post("/expenses", createExpense);
 router.get("/expenses", getAllExpenses);
 
-// 3. Employee & Trainer Salaries (Only Admin)
+// 3. Employee Management (Only Admin)
+router.post("/employees", createEmployee);
+router.get("/employees", getAllEmployees);
+router.get("/employees/:id", getEmployeeById);
+router.put("/employees/:id", updateEmployee);
+router.delete("/employees/:id", deleteEmployee);
+
+// 4. Employee & Trainer Salaries (Only Admin)
 router.post("/salaries", recordSalary);
 router.get("/salaries", getAllSalaries);
 

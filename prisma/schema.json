@@ -16,6 +16,14 @@
       "model": "EmiSchedule",
       "namespace": "public"
     },
+    "Employee": {
+      "model": "Employee",
+      "namespace": "public"
+    },
+    "EmployeeLop": {
+      "model": "EmployeeLop",
+      "namespace": "public"
+    },
     "Expense": {
       "model": "Expense",
       "namespace": "public"
@@ -59,6 +67,19 @@
               {
                 "name": "OVERDUE",
                 "value": "OVERDUE"
+              }
+            ]
+          },
+          "EmployeeStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ACTIVE",
+                "value": "ACTIVE"
+              },
+              {
+                "name": "INACTIVE",
+                "value": "INACTIVE"
               }
             ]
           },
@@ -563,6 +584,332 @@
               },
               "namespaceId": "public",
               "table": "EmiSchedule"
+            }
+          },
+          "Employee": {
+            "fields": {
+              "accountNumber": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "appraisalDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bankName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "baseSalary": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "department": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "email": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "empCode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "ifscCode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "joiningDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "phone": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "EmployeeStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "lopRecords": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "employeeId"
+                  ]
+                },
+                "to": {
+                  "model": "EmployeeLop",
+                  "namespace": "public"
+                }
+              },
+              "salaries": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "employeeId"
+                  ]
+                },
+                "to": {
+                  "model": "SalaryPayment",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "accountNumber": {
+                  "column": "accountNumber"
+                },
+                "appraisalDate": {
+                  "column": "appraisalDate"
+                },
+                "bankName": {
+                  "column": "bankName"
+                },
+                "baseSalary": {
+                  "column": "baseSalary"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "department": {
+                  "column": "department"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "empCode": {
+                  "column": "empCode"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "ifscCode": {
+                  "column": "ifscCode"
+                },
+                "joiningDate": {
+                  "column": "joiningDate"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "notes": {
+                  "column": "notes"
+                },
+                "phone": {
+                  "column": "phone"
+                },
+                "role": {
+                  "column": "role"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Employee"
+            }
+          },
+          "EmployeeLop": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "employeeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "lopAmount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "lopDays": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "month": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "reason": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "year": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "employee": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "employeeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Employee",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "employeeId": {
+                  "column": "employeeId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lopAmount": {
+                  "column": "lopAmount"
+                },
+                "lopDays": {
+                  "column": "lopDays"
+                },
+                "month": {
+                  "column": "month"
+                },
+                "reason": {
+                  "column": "reason"
+                },
+                "year": {
+                  "column": "year"
+                }
+              },
+              "namespaceId": "public",
+              "table": "EmployeeLop"
             }
           },
           "Expense": {
@@ -1156,6 +1503,13 @@
                   "kind": "scalar"
                 }
               },
+              "baseSalary": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -1170,6 +1524,13 @@
                   "kind": "scalar"
                 }
               },
+              "employeeId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "employeeName": {
                 "nullable": false,
                 "type": {
@@ -1181,6 +1542,20 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "lopDays": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "lopDeduction": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
                   "kind": "scalar"
                 }
               },
@@ -1248,6 +1623,22 @@
               }
             },
             "relations": {
+              "employee": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "employeeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Employee",
+                  "namespace": "public"
+                }
+              },
               "paidBy": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1270,17 +1661,29 @@
                 "amount": {
                   "column": "amount"
                 },
+                "baseSalary": {
+                  "column": "baseSalary"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
                 "employeeEmail": {
                   "column": "employeeEmail"
                 },
+                "employeeId": {
+                  "column": "employeeId"
+                },
                 "employeeName": {
                   "column": "employeeName"
                 },
                 "id": {
                   "column": "id"
+                },
+                "lopDays": {
+                  "column": "lopDays"
+                },
+                "lopDeduction": {
+                  "column": "lopDeduction"
                 },
                 "month": {
                   "column": "month"
@@ -1921,6 +2324,253 @@
               },
               "uniques": []
             },
+            "Employee": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('ACTIVE', 'INACTIVE')",
+                  "name": "Employee_status_check_ee520df2",
+                  "prefix": "Employee_status_check"
+                }
+              ],
+              "columns": {
+                "accountNumber": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "appraisalDate": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "bankName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "baseSalary": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "department": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "empCode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "ifscCode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "joiningDate": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notes": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "phone": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "role": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ACTIVE"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "EmployeeStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "Employee_status_idx_e98638ab",
+                  "prefix": "Employee_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "empCode"
+                  ]
+                }
+              ]
+            },
+            "EmployeeLop": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "employeeId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "lopAmount": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "lopDays": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "month": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "reason": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "year": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "EmployeeLop_employeeId_idx_087dd4a6"
+                  },
+                  "source": {
+                    "columns": [
+                      "employeeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "EmployeeLop"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Employee"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "employeeId"
+                  ],
+                  "name": "EmployeeLop_employeeId_idx_087dd4a6",
+                  "prefix": "EmployeeLop_employeeId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "year",
+                    "month"
+                  ],
+                  "name": "EmployeeLop_year_month_idx_58ea64fc",
+                  "prefix": "EmployeeLop_year_month_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Expense": {
               "checks": [
                 {
@@ -2481,6 +3131,11 @@
                   "dataType": "pg/float8",
                   "nullable": false
                 },
+                "baseSalary": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": true
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "dataType": "pg/timestamptz",
@@ -2493,6 +3148,11 @@
                 "employeeEmail": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
+                  "nullable": true
+                },
+                "employeeId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
                   "nullable": true
                 },
                 "employeeName": {
@@ -2508,6 +3168,24 @@
                     "kind": "function"
                   },
                   "nullable": false
+                },
+                "lopDays": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": true
+                },
+                "lopDeduction": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": true
                 },
                 "month": {
                   "codecId": "pg/int4@1",
@@ -2567,6 +3245,25 @@
               "foreignKeys": [
                 {
                   "index": {
+                    "name": "SalaryPayment_employeeId_idx_087dd4a6"
+                  },
+                  "source": {
+                    "columns": [
+                      "employeeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "SalaryPayment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Employee"
+                  }
+                },
+                {
+                  "index": {
                     "name": "SalaryPayment_paidById_idx_406e50ef"
                   },
                   "source": {
@@ -2586,6 +3283,14 @@
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "employeeId"
+                  ],
+                  "name": "SalaryPayment_employeeId_idx_087dd4a6",
+                  "prefix": "SalaryPayment_employeeId_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "paidById"
@@ -2846,6 +3551,13 @@
                 "OVERDUE"
               ]
             },
+            "EmployeeStatus": {
+              "kind": "valueSet",
+              "values": [
+                "ACTIVE",
+                "INACTIVE"
+              ]
+            },
             "ExpenseCategory": {
               "kind": "valueSet",
               "values": [
@@ -2903,10 +3615,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d7225792129471d026a075564d6d38ea28fe191ab1f8619585244f2384167140"
+    "storageHash": "eb6063b18a50733ff170a65badee1695562990e4a63ded26dbe83930fe5f5041"
   },
   "execution": {
-    "executionHash": "daf905d771dce9392f785fc07403fceecc1b719c7a7ca602c49afddd428199e2",
+    "executionHash": "deb3621316f7cfecdfed3ff924ff3fb39ce6f92f2000235ebaafa29f1adb60da",
     "mutations": {
       "defaults": [
         {
@@ -2935,6 +3647,21 @@
           },
           "ref": {
             "entry": "EmiSchedule",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Employee",
             "field": "updatedAt",
             "namespace": "public"
           }
