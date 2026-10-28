@@ -1,10 +1,12 @@
+/** @format */
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 export interface AuthUserPayload {
   id: number;
   email: string;
-  role: "ADMIN" | "HR";
+  role: "ADMIN" | "HR" | "EMPLOYEE";
 }
 
 export interface AuthenticatedRequest extends Request {
@@ -15,7 +17,7 @@ export interface AuthenticatedRequest extends Request {
 export const verifyToken = (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const authHeader = req.headers.authorization;
 
@@ -49,7 +51,9 @@ export const verifyToken = (
 };
 
 // Middleware to restrict access based on Role (ADMIN / HR)
-export const requireRole = (allowedRoles: Array<"ADMIN" | "HR">) => {
+export const requireRole = (
+  allowedRoles: Array<"ADMIN" | "HR" | "EMPLOYEE">,
+) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({

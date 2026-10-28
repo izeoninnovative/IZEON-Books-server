@@ -3,6 +3,7 @@
 enum Role {
   ADMIN
   HR
+  EMPLOYEE
 }
 
 enum PaymentPlan {
@@ -61,6 +62,7 @@ model User {
   expenses  Expense[]
   salaries  SalaryPayment[]
   invoices  Invoice[]
+  employee  Employee?
 }
 
 model Course {
@@ -193,17 +195,90 @@ model Employee {
   joiningDate     String?
   baseSalary      Float          @default(0)
   appraisalDate   String?
+  lastAppraisalDate String?
+  lastAppraisalSalary Float?
+  lastAppraisalIncrement Float?
+  lastAppraisalNotes String?
   status          EmployeeStatus @default(ACTIVE)
   bankName        String?
   accountNumber   String?
   ifscCode        String?
   notes           String?
+  shiftInTime     String?        @default("09:30")
+  shiftOutTime    String?        @default("18:30")
+  gracePeriodMinutes Int?        @default(0)
+  userId          Int?           @unique
+  user            User?          @relation(fields: [userId], references: [id])
   createdAt       TimestamptzString @default(now())
   updatedAt       temporal.updatedAtString()
   salaries        SalaryPayment[]
   lopRecords      EmployeeLop[]
+  attendances     EmployeeAttendance[]
+  appraisals      EmployeeAppraisal[]
 
   @@index([empCode])
+  @@index([status])
+  @@index([userId])
+}
+
+model EmployeeAppraisal {
+  id                  Int      @id @default(autoincrement())
+  employeeId          Int
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  previousSalary      Float
+  newSalary           Float
+  incrementAmount     Float
+  incrementPercentage Float?
+  appraisalDate       String
+  nextAppraisalDate   String?
+  rating              String?
+  notes               String?
+  createdAt           TimestamptzString @default(now())
+
+  @@index([employeeId])
+  @@index([appraisalDate])
+}
+
+model AttendancePolicy {
+  id                  Int      @id @default(autoincrement())
+  expectedInTime      String   @default("09:30")
+  expectedOutTime     String   @default("18:30")
+  gracePeriodMinutes  Int      @default(0)
+  lateDeductionPerDay Float    @default(100)
+  lateDeduction900    Float?   @default(100)
+  lateDeduction930    Float?   @default(100)
+  deductionType       String   @default("FLAT")
+  geofenceEnabled     Boolean  @default(true)
+  officeLatitude      Float    @default(13.0827)
+  officeLongitude     Float    @default(80.2707)
+  geofenceRadiusMeters Float   @default(50)
+  officeAddress       String?  @default("IZEON INNOVATIVE, Tamil Nadu")
+  createdAt           TimestamptzString @default(now())
+  updatedAt           TimestamptzString @default(now())
+}
+
+model EmployeeAttendance {
+  id                  Int      @id @default(autoincrement())
+  employeeId          Int
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  date                String
+  inTime              String?
+  outTime             String?
+  workHours           Float    @default(0)
+  isLate              Boolean  @default(false)
+  lateMinutes         Int      @default(0)
+  lateDeduction       Float    @default(0)
+  status              String   @default("PRESENT")
+  notes               String?
+  punchLatitude       Float?
+  punchLongitude      Float?
+  punchDistanceMeters Float?
+  createdAt           TimestamptzString @default(now())
+  updatedAt           TimestamptzString @default(now())
+
+  @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([date])
   @@index([status])
 }
 
@@ -235,6 +310,8 @@ model SalaryPayment {
   baseSalary    Float?
   lopDays       Float?        @default(0)
   lopDeduction  Float?        @default(0)
+  lateDays      Int?          @default(0)
+  lateDeduction Float?        @default(0)
   paymentDate   TimestamptzString @default(now())
   paymentMethod PaymentMethod @default(NETBANKING)
   reference     String?
