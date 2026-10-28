@@ -1,3 +1,5 @@
+/** @format */
+
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { db } from "../prisma/db.js";
@@ -6,7 +8,7 @@ export interface RegisterDTO {
   username: string;
   email: string;
   password: string;
-  role?: "ADMIN" | "HR";
+  role?: "ADMIN" | "HR" | "EMPLOYEE";
 }
 
 export interface LoginDTO {
@@ -67,12 +69,28 @@ export const loginUser = async (data: LoginDTO) => {
       role: user.role,
     },
     secret,
-    { expiresIn: "1d" }
+    { expiresIn: "1d" },
   );
+
+  // Check if this user is linked to an employee profile
+  const employee =
+    (await db.orm.public.Employee.where({ userId: user.id }).first()) ||
+    (await db.orm.public.Employee.where({ email: user.email }).first());
+
+  // Auto-link userId if matched by email
+  if (employee && !employee.userId) {
+    await db.orm.public.Employee.where({ id: employee.id }).update({ userId: user.id });
+  }
 
   const { password, ...userWithoutPassword } = user;
   return {
-    user: userWithoutPassword,
+    user: {
+      ...userWithoutPassword,
+      employeeId: employee?.id || null,
+      empCode: employee?.empCode || null,
+      designation: employee?.role || null,
+      department: employee?.department || null,
+    },
     token,
   };
 };

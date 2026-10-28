@@ -4,6 +4,10 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "AttendancePolicy": {
+      "model": "AttendancePolicy",
+      "namespace": "public"
+    },
     "CompanyProfile": {
       "model": "CompanyProfile",
       "namespace": "public"
@@ -18,6 +22,14 @@
     },
     "Employee": {
       "model": "Employee",
+      "namespace": "public"
+    },
+    "EmployeeAppraisal": {
+      "model": "EmployeeAppraisal",
+      "namespace": "public"
+    },
+    "EmployeeAttendance": {
+      "model": "EmployeeAttendance",
       "namespace": "public"
     },
     "EmployeeLop": {
@@ -177,6 +189,10 @@
               {
                 "name": "HR",
                 "value": "HR"
+              },
+              {
+                "name": "EMPLOYEE",
+                "value": "EMPLOYEE"
               }
             ]
           },
@@ -199,6 +215,167 @@
           }
         },
         "models": {
+          "AttendancePolicy": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "deductionType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "expectedInTime": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "expectedOutTime": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "geofenceEnabled": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "geofenceRadiusMeters": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "gracePeriodMinutes": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "lateDeduction900": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "lateDeduction930": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "lateDeductionPerDay": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "officeAddress": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "officeLatitude": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "officeLongitude": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "deductionType": {
+                  "column": "deductionType"
+                },
+                "expectedInTime": {
+                  "column": "expectedInTime"
+                },
+                "expectedOutTime": {
+                  "column": "expectedOutTime"
+                },
+                "geofenceEnabled": {
+                  "column": "geofenceEnabled"
+                },
+                "geofenceRadiusMeters": {
+                  "column": "geofenceRadiusMeters"
+                },
+                "gracePeriodMinutes": {
+                  "column": "gracePeriodMinutes"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lateDeduction900": {
+                  "column": "lateDeduction900"
+                },
+                "lateDeduction930": {
+                  "column": "lateDeduction930"
+                },
+                "lateDeductionPerDay": {
+                  "column": "lateDeductionPerDay"
+                },
+                "officeAddress": {
+                  "column": "officeAddress"
+                },
+                "officeLatitude": {
+                  "column": "officeLatitude"
+                },
+                "officeLongitude": {
+                  "column": "officeLongitude"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "AttendancePolicy"
+            }
+          },
           "CompanyProfile": {
             "fields": {
               "address": {
@@ -644,6 +821,13 @@
                   "kind": "scalar"
                 }
               },
+              "gracePeriodMinutes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -662,6 +846,34 @@
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastAppraisalDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastAppraisalIncrement": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastAppraisalNotes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastAppraisalSalary": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
                   "kind": "scalar"
                 }
               },
@@ -693,6 +905,20 @@
                   "kind": "scalar"
                 }
               },
+              "shiftInTime": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "shiftOutTime": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "status": {
                 "nullable": false,
                 "type": {
@@ -712,9 +938,46 @@
                   "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
+              },
+              "userId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
+              "appraisals": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "employeeId"
+                  ]
+                },
+                "to": {
+                  "model": "EmployeeAppraisal",
+                  "namespace": "public"
+                }
+              },
+              "attendances": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "employeeId"
+                  ]
+                },
+                "to": {
+                  "model": "EmployeeAttendance",
+                  "namespace": "public"
+                }
+              },
               "lopRecords": {
                 "cardinality": "1:N",
                 "on": {
@@ -742,6 +1005,22 @@
                 },
                 "to": {
                   "model": "SalaryPayment",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
                   "namespace": "public"
                 }
               }
@@ -772,6 +1051,9 @@
                 "empCode": {
                   "column": "empCode"
                 },
+                "gracePeriodMinutes": {
+                  "column": "gracePeriodMinutes"
+                },
                 "id": {
                   "column": "id"
                 },
@@ -780,6 +1062,18 @@
                 },
                 "joiningDate": {
                   "column": "joiningDate"
+                },
+                "lastAppraisalDate": {
+                  "column": "lastAppraisalDate"
+                },
+                "lastAppraisalIncrement": {
+                  "column": "lastAppraisalIncrement"
+                },
+                "lastAppraisalNotes": {
+                  "column": "lastAppraisalNotes"
+                },
+                "lastAppraisalSalary": {
+                  "column": "lastAppraisalSalary"
                 },
                 "name": {
                   "column": "name"
@@ -793,15 +1087,350 @@
                 "role": {
                   "column": "role"
                 },
+                "shiftInTime": {
+                  "column": "shiftInTime"
+                },
+                "shiftOutTime": {
+                  "column": "shiftOutTime"
+                },
                 "status": {
                   "column": "status"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
+                },
+                "userId": {
+                  "column": "userId"
                 }
               },
               "namespaceId": "public",
               "table": "Employee"
+            }
+          },
+          "EmployeeAppraisal": {
+            "fields": {
+              "appraisalDate": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "employeeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "incrementAmount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "incrementPercentage": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "newSalary": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "nextAppraisalDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "previousSalary": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "rating": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "employee": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "employeeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Employee",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "appraisalDate": {
+                  "column": "appraisalDate"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "employeeId": {
+                  "column": "employeeId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "incrementAmount": {
+                  "column": "incrementAmount"
+                },
+                "incrementPercentage": {
+                  "column": "incrementPercentage"
+                },
+                "newSalary": {
+                  "column": "newSalary"
+                },
+                "nextAppraisalDate": {
+                  "column": "nextAppraisalDate"
+                },
+                "notes": {
+                  "column": "notes"
+                },
+                "previousSalary": {
+                  "column": "previousSalary"
+                },
+                "rating": {
+                  "column": "rating"
+                }
+              },
+              "namespaceId": "public",
+              "table": "EmployeeAppraisal"
+            }
+          },
+          "EmployeeAttendance": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "date": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "employeeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "inTime": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isLate": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "lateDeduction": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "lateMinutes": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "notes": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "outTime": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "punchDistanceMeters": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "punchLatitude": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "punchLongitude": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "workHours": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "employee": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "employeeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Employee",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "date": {
+                  "column": "date"
+                },
+                "employeeId": {
+                  "column": "employeeId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "inTime": {
+                  "column": "inTime"
+                },
+                "isLate": {
+                  "column": "isLate"
+                },
+                "lateDeduction": {
+                  "column": "lateDeduction"
+                },
+                "lateMinutes": {
+                  "column": "lateMinutes"
+                },
+                "notes": {
+                  "column": "notes"
+                },
+                "outTime": {
+                  "column": "outTime"
+                },
+                "punchDistanceMeters": {
+                  "column": "punchDistanceMeters"
+                },
+                "punchLatitude": {
+                  "column": "punchLatitude"
+                },
+                "punchLongitude": {
+                  "column": "punchLongitude"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "workHours": {
+                  "column": "workHours"
+                }
+              },
+              "namespaceId": "public",
+              "table": "EmployeeAttendance"
             }
           },
           "EmployeeLop": {
@@ -1545,6 +2174,20 @@
                   "kind": "scalar"
                 }
               },
+              "lateDays": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "lateDeduction": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
               "lopDays": {
                 "nullable": true,
                 "type": {
@@ -1678,6 +2321,12 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "lateDays": {
+                  "column": "lateDays"
+                },
+                "lateDeduction": {
+                  "column": "lateDeduction"
                 },
                 "lopDays": {
                   "column": "lopDays"
@@ -1947,6 +2596,22 @@
               }
             },
             "relations": {
+              "employee": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "Employee",
+                  "namespace": "public"
+                }
+              },
               "expenses": {
                 "cardinality": "1:N",
                 "on": {
@@ -2030,6 +2695,153 @@
       "public": {
         "entries": {
           "table": {
+            "AttendancePolicy": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "deductionType": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "FLAT"
+                  },
+                  "nullable": false
+                },
+                "expectedInTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "09:30"
+                  },
+                  "nullable": false
+                },
+                "expectedOutTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "18:30"
+                  },
+                  "nullable": false
+                },
+                "geofenceEnabled": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "geofenceRadiusMeters": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 150
+                  },
+                  "nullable": false
+                },
+                "gracePeriodMinutes": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "lateDeduction900": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 100
+                  },
+                  "nullable": true
+                },
+                "lateDeduction930": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 100
+                  },
+                  "nullable": true
+                },
+                "lateDeductionPerDay": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 100
+                  },
+                  "nullable": false
+                },
+                "officeAddress": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "IZEON INNOVATIVE, Tamil Nadu"
+                  },
+                  "nullable": true
+                },
+                "officeLatitude": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 13.0827
+                  },
+                  "nullable": false
+                },
+                "officeLongitude": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 80.2707
+                  },
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "CompanyProfile": {
               "columns": {
                 "address": {
@@ -2381,6 +3193,15 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
+                "gracePeriodMinutes": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/int4@1",
                   "dataType": "pg/int4",
@@ -2398,6 +3219,26 @@
                 "joiningDate": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
+                  "nullable": true
+                },
+                "lastAppraisalDate": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "lastAppraisalIncrement": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": true
+                },
+                "lastAppraisalNotes": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "lastAppraisalSalary": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
                   "nullable": true
                 },
                 "name": {
@@ -2420,6 +3261,24 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
+                "shiftInTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "09:30"
+                  },
+                  "nullable": true
+                },
+                "shiftOutTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "18:30"
+                  },
+                  "nullable": true
+                },
                 "status": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -2439,9 +3298,36 @@
                   "codecId": "pg/timestamptz-string@1",
                   "dataType": "pg/timestamptz",
                   "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
                 }
               },
-              "foreignKeys": [],
+              "foreignKeys": [
+                {
+                  "index": {
+                    "unique": [
+                      "userId"
+                    ]
+                  },
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Employee"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
               "indexes": [
                 {
                   "columns": [
@@ -2461,6 +3347,299 @@
                 {
                   "columns": [
                     "empCode"
+                  ]
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ]
+                }
+              ]
+            },
+            "EmployeeAppraisal": {
+              "columns": {
+                "appraisalDate": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "employeeId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "incrementAmount": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": false
+                },
+                "incrementPercentage": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": true
+                },
+                "newSalary": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": false
+                },
+                "nextAppraisalDate": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "notes": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "previousSalary": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": false
+                },
+                "rating": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "EmployeeAppraisal_employeeId_idx_087dd4a6"
+                  },
+                  "source": {
+                    "columns": [
+                      "employeeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "EmployeeAppraisal"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Employee"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "appraisalDate"
+                  ],
+                  "name": "EmployeeAppraisal_appraisalDate_idx_9ebccef9",
+                  "prefix": "EmployeeAppraisal_appraisalDate_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "employeeId"
+                  ],
+                  "name": "EmployeeAppraisal_employeeId_idx_087dd4a6",
+                  "prefix": "EmployeeAppraisal_employeeId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "EmployeeAttendance": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "date": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "employeeId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "inTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "isLate": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "lateDeduction": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "lateMinutes": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "notes": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "outTime": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "punchDistanceMeters": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": true
+                },
+                "punchLatitude": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": true
+                },
+                "punchLongitude": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PRESENT"
+                  },
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "workHours": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "EmployeeAttendance_employeeId_idx_087dd4a6"
+                  },
+                  "source": {
+                    "columns": [
+                      "employeeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "EmployeeAttendance"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Employee"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "date"
+                  ],
+                  "name": "EmployeeAttendance_date_idx_b4ca319c",
+                  "prefix": "EmployeeAttendance_date_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "employeeId"
+                  ],
+                  "name": "EmployeeAttendance_employeeId_idx_087dd4a6",
+                  "prefix": "EmployeeAttendance_employeeId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "EmployeeAttendance_status_idx_e98638ab",
+                  "prefix": "EmployeeAttendance_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "employeeId",
+                    "date"
                   ]
                 }
               ]
@@ -3169,6 +4348,24 @@
                   },
                   "nullable": false
                 },
+                "lateDays": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": true
+                },
+                "lateDeduction": {
+                  "codecId": "pg/float8@1",
+                  "dataType": "pg/float8",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": true
+                },
                 "lopDays": {
                   "codecId": "pg/float8@1",
                   "dataType": "pg/float8",
@@ -3466,8 +4663,8 @@
             "User": {
               "checks": [
                 {
-                  "expression": "\"role\" IN ('ADMIN', 'HR')",
-                  "name": "User_role_check_e0931e6b",
+                  "expression": "\"role\" IN ('ADMIN', 'HR', 'EMPLOYEE')",
+                  "name": "User_role_check_f0a1d0c1",
                   "prefix": "User_role_check"
                 }
               ],
@@ -3598,7 +4795,8 @@
               "kind": "valueSet",
               "values": [
                 "ADMIN",
-                "HR"
+                "HR",
+                "EMPLOYEE"
               ]
             },
             "StudentStatus": {
@@ -3615,7 +4813,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "eb6063b18a50733ff170a65badee1695562990e4a63ded26dbe83930fe5f5041"
+    "storageHash": "d0be9e8027aca2fcac6715bdd70007a4deb4297e64bb2caaa3b554bf346a5543"
   },
   "execution": {
     "executionHash": "deb3621316f7cfecdfed3ff924ff3fb39ce6f92f2000235ebaafa29f1adb60da",
