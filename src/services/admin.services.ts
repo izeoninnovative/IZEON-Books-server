@@ -954,7 +954,14 @@ export const recordAttendance = async (data: RecordAttendanceDTO) => {
   let status =
     data.status || (isLate ? "LATE" : data.inTime ? "PRESENT" : "ABSENT");
 
-  if (status === "PERMISSION") {
+  if (status === "OD") {
+    isLate = false;
+    lateMinutes = 0;
+    lateDeduction = 0;
+    if (!workHours || workHours === 0) {
+      workHours = 8;
+    }
+  } else if (status === "PERMISSION") {
     isLate = false;
     lateMinutes = 0;
     if (data.lateDeduction === undefined) {
@@ -1069,7 +1076,9 @@ export const calculateConsecutiveLatePenalties = (
 
   for (const att of sorted) {
     const isLate =
-      (att.isLate || att.status === "LATE") && att.status !== "PERMISSION";
+      (att.isLate || att.status === "LATE") &&
+      att.status !== "PERMISSION" &&
+      att.status !== "OD";
 
     if (isLate) {
       totalLateDays += 1;
@@ -1082,7 +1091,7 @@ export const calculateConsecutiveLatePenalties = (
         consecutivePenaltyDays += 1;
       }
     } else {
-      // Coming on time or approved permission resets the consecutive streak
+      // Coming on time, OD, or approved permission resets the consecutive streak
       currentConsecutiveLate = 0;
     }
   }
@@ -1227,6 +1236,7 @@ export const getAttendanceRegister = async (filters?: {
     const expectedInTime = emp?.shiftInTime || policy.expectedInTime;
     const expectedOutTime = emp?.shiftOutTime || policy.expectedOutTime;
     const isPermission = att.status === "PERMISSION";
+    const isOD = att.status === "OD";
 
     return {
       attendanceId: att.id,
@@ -1239,13 +1249,13 @@ export const getAttendanceRegister = async (filters?: {
       shiftInTime: expectedInTime,
       shiftOutTime: expectedOutTime,
       assignedShift: `${expectedInTime} - ${expectedOutTime}`,
-      inTime: att.inTime || "-",
-      outTime: att.outTime || "-",
-      workHours: att.workHours || 0,
+      inTime: att.inTime || (isOD ? "OD" : "-"),
+      outTime: att.outTime || (isOD ? "OD" : "-"),
+      workHours: att.workHours || (isOD ? 8 : 0),
       status: att.status || (att.inTime ? "PRESENT" : "ABSENT"),
-      isLate: isPermission ? false : att.isLate || false,
-      lateMinutes: isPermission ? 0 : att.lateMinutes || 0,
-      lateDeduction: isPermission ? 0 : att.lateDeduction || 0,
+      isLate: isPermission || isOD ? false : att.isLate || false,
+      lateMinutes: isPermission || isOD ? 0 : att.lateMinutes || 0,
+      lateDeduction: isPermission || isOD ? 0 : att.lateDeduction || 0,
       punchDistanceMeters: att.punchDistanceMeters ?? null,
       notes: att.notes || "",
       createdAt: att.createdAt,
@@ -1288,8 +1298,10 @@ export const getAttendanceMonthlySummary = async (
       (a) =>
         a.status === "PRESENT" ||
         a.status === "LATE" ||
-        a.status === "PERMISSION",
+        a.status === "PERMISSION" ||
+        a.status === "OD",
     ).length;
+    const odDays = empAtt.filter((a) => a.status === "OD").length;
     const permissionDays = empAtt.filter(
       (a) => a.status === "PERMISSION",
     ).length;
@@ -1317,6 +1329,7 @@ export const getAttendanceMonthlySummary = async (
       month,
       year,
       presentDays,
+      odDays,
       permissionDays,
       lateDays: penalties.totalLateDays,
       consecutiveLatePenaltyDays: penalties.consecutivePenaltyDays,

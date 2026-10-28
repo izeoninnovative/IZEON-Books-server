@@ -175,8 +175,9 @@ export const punchAttendance = async (
 
   let punchDistanceMeters: number | undefined = undefined;
 
-  // Strict Geofence Location Verification
-  if (policy.geofenceEnabled) {
+  // Strict Geofence Location Verification (Bypassed if employee is On Duty - OD off-site)
+  const isOD = data.status === "OD";
+  if (policy.geofenceEnabled && !isOD) {
     if (
       data.latitude === undefined ||
       data.longitude === undefined ||
@@ -209,6 +210,14 @@ export const punchAttendance = async (
         `Geofence Verification Failed: You are outside the office (${punchDistanceMeters}m away). Attendance punch is only permitted within ${allowedRadius}m of ${officeTitle}.`
       );
     }
+  } else if (data.latitude && data.longitude) {
+    // Optional distance calculation for OD if GPS is shared
+    punchDistanceMeters = calculateDistanceMeters(
+      Number(data.latitude),
+      Number(data.longitude),
+      Number(policy.officeLatitude || 13.0827),
+      Number(policy.officeLongitude || 80.2707)
+    );
   }
 
   const existing = await db.orm.public.EmployeeAttendance.where({
@@ -224,7 +233,7 @@ export const punchAttendance = async (
   if (data.type === "IN") {
     // Strictly live server time to eliminate timing forgery
     inTime = existing?.inTime || currentTime;
-    if (status !== "PERMISSION" && status !== "HALF_DAY") {
+    if (status !== "PERMISSION" && status !== "HALF_DAY" && status !== "OD") {
       status = undefined;
     }
   } else if (data.type === "OUT") {
@@ -235,8 +244,11 @@ export const punchAttendance = async (
     }
   } else if (data.type === "MANUAL") {
     // Staff/HR cannot arbitrarily alter their clocked in/out hours
-    // If not clocked in yet and saving a note/permission, stamp current live time
-    if (!inTime) {
+    // If On Duty (OD), timing is not required!
+    if (data.status === "OD") {
+      inTime = data.inTime || existing?.inTime || null;
+      outTime = data.outTime || existing?.outTime || null;
+    } else if (!inTime) {
       inTime = currentTime;
     }
   }
